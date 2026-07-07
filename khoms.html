@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه‌گر خمس - نسخه ۲</title>
+    <link href="https://cdn.fontcdn.ir/font/vazir/Vazir.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Vazir',sans-serif; }
+        body { background:linear-gradient(135deg,#0c3b2e,#1a6d5e); min-height:100vh; padding:20px; display:flex; justify-content:center; align-items:center; }
+        .container { max-width:950px; width:100%; background:rgba(255,255,255,0.96); border-radius:30px; padding:30px; box-shadow:0 20px 60px rgba(0,0,0,0.6); border:2px solid #d4af37; position:relative; }
+        .islamic-pattern { background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20" width="100" height="20"><path d="M10,0 L20,10 L10,20 L0,10 Z" fill="%23d4af37" opacity="0.3"/><path d="M30,0 L40,10 L30,20 L20,10 Z" fill="%23d4af37" opacity="0.3"/><path d="M50,0 L60,10 L50,20 L40,10 Z" fill="%23d4af37" opacity="0.3"/><path d="M70,0 L80,10 L70,20 L60,10 Z" fill="%23d4af37" opacity="0.3"/><path d="M90,0 L100,10 L90,20 L80,10 Z" fill="%23d4af37" opacity="0.3"/></svg>') repeat-x; height:25px; margin-bottom:20px; }
+        h1 { text-align:center; color:#1a4d3e; font-weight:700; font-size:28px; border-bottom:3px solid #d4af37; padding-bottom:15px; margin-bottom:25px; display:flex; align-items:center; justify-content:center; gap:12px; }
+        h1 span { background:#d4af37; color:#fff; border-radius:50%; width:48px; height:48px; display:inline-flex; align-items:center; justify-content:center; font-size:24px; }
+        .step { display:none; animation:fadeIn 0.4s ease; }
+        .step.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+        .form-group { margin-bottom:18px; }
+        label { display:block; font-weight:600; color:#1a4d3e; margin-bottom:5px; font-size:14px; }
+        label i { color:#d4af37; margin-left:6px; }
+        .help-text { display:block; font-size:12px; color:#666; margin-top:4px; padding:6px 12px; background:#f0f7f4; border-radius:8px; border-right:3px solid #d4af37; }
+        input,select { width:100%; padding:11px 15px; border:2px solid #ddd; border-radius:12px; font-size:14px; transition:0.3s; background:#f9f9f9; color:#333; }
+        input:focus,select:focus { border-color:#d4af37; outline:none; box-shadow:0 0 0 4px rgba(212,175,55,0.2); background:#fff; }
+        .btn { padding:11px 28px; border:none; border-radius:30px; font-size:15px; font-weight:600; cursor:pointer; transition:0.3s; display:inline-flex; align-items:center; gap:7px; }
+        .btn-primary { background:#1a6d5e; color:#fff; }
+        .btn-primary:hover { background:#0c3b2e; transform:translateY(-2px); box-shadow:0 8px 25px rgba(26,109,94,0.4); }
+        .btn-success { background:#d4af37; color:#1a4d3e; }
+        .btn-success:hover { background:#b8962e; transform:translateY(-2px); box-shadow:0 8px 25px rgba(212,175,55,0.4); }
+        .btn-outline { background:transparent; border:2px solid #1a6d5e; color:#1a6d5e; }
+        .btn-outline:hover { background:#1a6d5e; color:#fff; }
+        .btn-danger { background:#b33c3c; color:#fff; }
+        .btn-danger:hover { background:#8a2a2a; transform:translateY(-2px); }
+        .btn-info { background:#17a2b8; color:#fff; }
+        .btn-info:hover { background:#138496; transform:translateY(-2px); }
+        .btn-group { display:flex; justify-content:space-between; margin-top:25px; gap:12px; flex-wrap:wrap; }
+        .btn-group .btn { flex:1; min-width:120px; justify-content:center; }
+        .item-card { background:#f5f0e8; border-right:5px solid #d4af37; padding:15px; border-radius:12px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+        .item-card .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px; }
+        .badge { display:inline-block; padding:3px 14px; border-radius:20px; font-size:12px; font-weight:600; }
+        .badge-gold { background:#d4af37; color:#fff; }
+        .badge-green { background:#1a6d5e; color:#fff; }
+        .total-box { background:linear-gradient(135deg,#1a4d3e,#0c3b2e); color:#fff; padding:25px; border-radius:20px; margin:25px 0; text-align:center; }
+        .total-box h2 { font-size:34px; color:#d4af37; }
+        .total-box small { opacity:0.8; font-size:14px; }
+        .checkbox-group { display:flex; align-items:center; gap:10px; margin:8px 0; flex-wrap:wrap; }
+        .checkbox-group input[type="checkbox"],.checkbox-group input[type="radio"] { width:18px; height:18px; accent-color:#d4af37; cursor:pointer; }
+        .footer-pdf { text-align:center; margin-top:30px; padding-top:20px; border-top:2px dashed #d4af37; color:#666; font-size:13px; }
+        @media(max-width:600px){ .container{ padding:15px; } .item-card .row{ grid-template-columns:1fr; } .btn-group{ flex-direction:column; } .btn-group .btn{ width:100%; } }
+        .hidden { display:none; }
+        .mt-10 { margin-top:10px; }
+        .mb-10 { margin-bottom:10px; }
+        .text-center { text-align:center; }
+        .text-gold { color:#d4af37; }
+        .result-detail { background:#f9f6ef; padding:18px; border-radius:16px; font-size:14px; line-height:2.2; }
+        .result-detail hr { margin:10px 0; border-color:#ddd; }
+        .result-detail .highlight { background:#e8f0ee; padding:8px 12px; border-radius:10px; }
+        .warning-box { background:#fff3cd; border-right:5px solid #ffc107; padding:12px 16px; border-radius:10px; margin-bottom:15px; font-size:13px; color:#856404; }
+        .info-box { background:#d1ecf1; border-right:5px solid #17a2b8; padding:12px 16px; border-radius:10px; margin-bottom:15px; font-size:13px; color:#0c5460; }
+        .remove-btn { background:#b33c3c; color:#fff; border:none; padding:4px 14px; border-radius:20px; cursor:pointer; font-size:12px; }
+        .remove-btn:hover { background:#8a2a2a; }
+        .flex-between { display:flex; justify-content:space-between; align-items:center; }
+        .mt-5 { margin-top:5px; }
+        .mb-5 { margin-bottom:5px; }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="islamic-pattern"></div>
+    <h1><span>🕌</span> محاسبه‌گر خمس <span>☪</span></h1>
+
+    <!-- ======== مرحله ۰: مشخصات ======== -->
+    <div class="step active" id="step0">
+        <div class="form-group"><label><i>👤</i> نام و نام خانوادگی</label><input type="text" id="fullName" placeholder="علی رضایی"></div>
+        <div class="form-group"><label><i>🆔</i> کد ملی</label><input type="text" id="nationalId" placeholder="۱۲۳۴۵۶۷۸۹۰"></div>
+        <div class="form-group"><label><i>📅</i> تاریخ تولد</label><input type="date" id="birthDate"></div>
+        <div class="form-group"><label><i>📆</i> تاریخ محاسبه</label><input type="date" id="calcDate"></div>
+        <div class="form-group">
+            <label><i>📅</i> نوع سال مالی</label>
+            <select id="yearType">
+                <option value="shamsi">سال شمسی</option>
+                <option value="ghamari">سال قمری</option>
+            </select>
+        </div>
+        <div class="btn-group"><button class="btn btn-success" onclick="nextStep(1)">شروع محاسبه ➜</button></div>
+    </div>
+
+    <!-- ======== مرحله ۱: درآمد، هزینه و موجودی ======== -->
+    <div class="step" id="step1">
+        <h3>💰 درآمد، هزینه و موجودی حساب</h3>
+        <div class="warning-box">
+            <strong>⚠️ نکته مهم:</strong> 
+            موجودی حساب خود را <strong>به همراه مازاد هزینه‌ها</strong> وارد کنید. 
+            یعنی اگر از درآمد سالانه‌تان هزینه‌ها را کم کرده‌اید و مازادی در حساب دارید، 
+            <strong>همان مازاد</strong> را در قسمت "موجودی حساب" وارد کنید. 
+            این کار از دوبار محاسبه خمس جلوگیری می‌کند.
+        </div>
+        <div class="form-group">
+            <label><i>📈</i> درآمد کل سال (تومان)</label>
+            <input type="text" id="income" placeholder="مثلاً ۵۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)">
+            <span class="help-text">مجموع تمام درآمدهای سال (حقوق، اجاره، سود، و ...)</span>
+        </div>
+        <div class="form-group">
+            <label><i>📉</i> هزینه‌های کل سال (تومان)</label>
+            <input type="text" id="expense" placeholder="مثلاً ۳۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)">
+            <span class="help-text">مجموع تمام هزینه‌های سال (خرج زندگی، قسط، و ...)</span>
+        </div>
+        <div class="form-group">
+            <label><i>🏦</i> موجودی حساب (تومان)</label>
+            <input type="text" id="cash" placeholder="مثلاً ۲۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)">
+            <span class="help-text">
+                <strong>موجودی نقدی فعلی حساب‌ها + مازاد هزینه‌ها</strong> 
+                (همان پولی که پس از کم کردن هزینه‌ها از درآمد، باقی مانده است)
+            </span>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(0)">➜ بازگشت</button>
+            <button class="btn btn-primary" onclick="nextStep(2)">املاک ➜</button>
+        </div>
+    </div>
+
+    <!-- ======== مرحله ۲: املاک ======== -->
+    <div class="step" id="step2">
+        <h3>🏠 املاک</h3>
+        <div class="info-box">
+            <strong>💡 نکته فقهی:</strong> 
+            در ملک رهنی، فقط <strong>مبلغ رهن دریافتی</strong> و <strong>مازاد آن</strong> (اگر از قیمت خرید بیشتر باشد) مشمول خمس می‌شود، نه کل قیمت ملک.
+        </div>
+        <div class="checkbox-group"><label>آیا ملکی دارید؟</label>
+            <input type="radio" name="hasHouse" value="yes" onclick="toggleHouse(true)"> بله
+            <input type="radio" name="hasHouse" value="no" onclick="toggleHouse(false)" checked> خیر
+        </div>
+        <div id="houseContainer" class="hidden">
+            <div class="form-group"><label>تعداد املاک</label><input type="number" id="houseCount" min="1" value="1" onchange="buildHouseForms()"></div>
+            <div id="houseForms"></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(1)">➜ بازگشت</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">خودرو ➜</button>
+        </div>
+    </div>
+
+    <!-- ======== مرحله ۳: خودرو ======== -->
+    <div class="step" id="step3">
+        <h3>🚗 خودروها</h3>
+        <div class="info-box">
+            <strong>💡 نکته فقهی:</strong> 
+            فقط خودروهایی که <strong>برای سرمایه‌گذاری</strong> خریداری شده‌اند و <strong>خمس سال قبل آنها پرداخت نشده</strong>، مشمول خمس می‌شوند.
+        </div>
+        <div class="checkbox-group"><label>آیا خودرو دارید؟</label>
+            <input type="radio" name="hasCar" value="yes" onclick="toggleCar(true)"> بله
+            <input type="radio" name="hasCar" value="no" onclick="toggleCar(false)" checked> خیر
+        </div>
+        <div id="carContainer" class="hidden">
+            <div class="form-group"><label>تعداد خودرو</label><input type="number" id="carCount" min="1" value="1" onchange="buildCarForms()"></div>
+            <div id="carForms"></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(2)">➜ بازگشت</button>
+            <button class="btn btn-primary" onclick="nextStep(4)">طلا و سکه ➜</button>
+        </div>
+    </div>
+
+    <!-- ======== مرحله ۴: طلا، سکه، نقره ======== -->
+    <div class="step" id="step4">
+        <h3>✨ طلا، سکه و نقره</h3>
+        <div class="info-box">
+            <strong>💡 نکته فقهی:</strong> 
+            فقط طلا، سکه و نقره‌ای که <strong>برای سرمایه‌گذاری</strong> نگهداری می‌شوند و <strong>خمس سال قبل آنها پرداخت نشده</strong>، مشمول خمس می‌شوند.
+        </div>
+        <div class="form-group"><label>وزن طلا (گرم) - فقط سرمایه‌ای</label><input type="text" id="goldWeight" placeholder="مثلاً ۱۰۰" oninput="formatNumber(this)"></div>
+        <div class="form-group"><label>قیمت هر گرم طلا (تومان)</label><input type="text" id="goldPrice" placeholder="مثلاً ۳,۵۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="checkbox-group"><label>آیا خمس طلاهای سال قبل پرداخت شده؟</label><input type="checkbox" id="goldPaid"></div>
+        <hr>
+        <div class="form-group"><label>تعداد سکه (سرمایه‌ای)</label><input type="text" id="coinCount" placeholder="مثلاً ۵" oninput="formatNumber(this)"></div>
+        <div class="form-group"><label>قیمت هر سکه (تومان)</label><input type="text" id="coinPrice" placeholder="مثلاً ۳۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="checkbox-group"><label>خمس سکه‌های سال قبل پرداخت شده؟</label><input type="checkbox" id="coinPaid"></div>
+        <hr>
+        <div class="form-group"><label>وزن نقره (گرم) - سرمایه‌ای</label><input type="text" id="silverWeight" placeholder="مثلاً ۵۰۰" oninput="formatNumber(this)"></div>
+        <div class="form-group"><label>قیمت هر گرم نقره (تومان)</label><input type="text" id="silverPrice" placeholder="مثلاً ۵۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="checkbox-group"><label>خمس نقره سال قبل پرداخت شده؟</label><input type="checkbox" id="silverPaid"></div>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(3)">➜ بازگشت</button>
+            <button class="btn btn-primary" onclick="nextStep(5)">ارزها و سایر ➜</button>
+        </div>
+    </div>
+
+    <!-- ======== مرحله ۵: ارزها، سهام و سایر اموال ======== -->
+    <div class="step" id="step5">
+        <h3>💵 ارزها، سهام و سایر اموال</h3>
+        
+        <div class="info-box">
+            <strong>💡 نکته فقهی:</strong> 
+            سهام و اوراق بهادار فقط به <strong>تفاوت قیمت</strong> (قیمت فعلی - قیمت خرید) خمس تعلق می‌گیرد، نه کل ارزش آن.
+        </div>
+
+        <h4 style="color:#1a4d3e;margin-top:15px;">💵 ارزهای خارجی</h4>
+        <div class="form-group"><label>مقدار دلار (سرمایه‌ای)</label><input type="text" id="dollar" placeholder="مثلاً ۱۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="form-group"><label>قیمت هر دلار (تومان)</label><input type="text" id="dollarPrice" placeholder="مثلاً ۵۰,۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="checkbox-group"><label>خمس دلار سال قبل پرداخت شده؟</label><input type="checkbox" id="dollarPaid"></div>
+        <hr>
+        <div class="form-group"><label>مقدار یورو (سرمایه‌ای)</label><input type="text" id="euro" placeholder="مثلاً ۵۰۰" oninput="formatNumber(this)"></div>
+        <div class="form-group"><label>قیمت هر یورو (تومان)</label><input type="text" id="euroPrice" placeholder="مثلاً ۵۵,۰۰۰" oninput="formatNumber(this)"></div>
+        <div class="checkbox-group"><label>خمس یورو سال قبل پرداخت شده؟</label><input type="checkbox" id="euroPaid"></div>
+
+        <hr>
+        <h4 style="color:#1a4d3e;margin-top:15px;">📈 سهام و اوراق بهادار</h4>
+        <div id="stockContainer">
+            <div class="item-card" id="stockTemplate">
+                <div class="flex-between">
+                    <strong>سهام</strong>
+                    <button class="remove-btn" onclick="removeStock(this)">✕ حذف</button>
+                </div>
+                <div class="row">
+                    <div><label>قیمت خرید (تومان)</label><input type="text" class="stock-buy" placeholder="مثلاً ۱۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                    <div><label>قیمت فعلی (تومان)</label><input type="text" class="stock-now" placeholder="مثلاً ۱۵۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                </div>
+                <div class="checkbox-group">
+                    <label>خمس سال قبل پرداخت شده؟</label>
+                    <input type="checkbox" class="stock-paid">
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-info" onclick="addStock()">➕ افزودن سهام دیگر</button>
+
+        <hr>
+        <h4 style="color:#1a4d3e;margin-top:15px;">💎 سایر اموال سرمایه‌ای</h4>
+        <div id="otherAssetContainer">
+            <div class="item-card" id="otherAssetTemplate">
+                <div class="flex-between">
+                    <strong>سایر اموال</strong>
+                    <button class="remove-btn" onclick="removeOtherAsset(this)">✕ حذف</button>
+                </div>
+                <div class="row">
+                    <div><label>نام کالا</label><input type="text" class="other-name" placeholder="مثلاً تابلو فرش"></div>
+                    <div><label>قیمت خرید (تومان)</label><input type="text" class="other-buy" placeholder="مثلاً ۵۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                </div>
+                <div class="row">
+                    <div><label>قیمت فعلی (تومان)</label><input type="text" class="other-now" placeholder="مثلاً ۸۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                    <div><label>کاربری:</label>
+                        <select class="other-use">
+                            <option value="personal">شخصی</option>
+                            <option value="investment" selected>سرمایه‌ای</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <label>خمس سال قبل پرداخت شده؟</label>
+                    <input type="checkbox" class="other-paid">
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-info" onclick="addOtherAsset()">➕ افزودن کالای دیگر</button>
+
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(4)">➜ بازگشت</button>
+            <button class="btn btn-success" onclick="calculateKhams()">🧮 محاسبه خمس</button>
+        </div>
+    </div>
+
+    <!-- ======== مرحله ۶: نتیجه نهایی ======== -->
+    <div class="step" id="step6">
+        <h3>📊 نتیجه محاسبه خمس</h3>
+        <div id="resultSummary"></div>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="prevStep(5)">➜ بازگشت</button>
+            <button class="btn btn-success" onclick="generatePDF()">📄 دریافت PDF</button>
+            <button class="btn btn-primary" onclick="resetAll()">🔄 شروع مجدد</button>
+        </div>
+    </div>
+
+    <div class="footer-pdf">
+        🕌 طراحی شده با عشق به اهل بیت (ع) | محاسبه بر اساس نظر مراجع
+    </div>
+</div>
+
+<script>
+    // ======== توابع کمکی ========
+    function formatNumber(input) {
+        let val = input.value.replace(/,/g, '');
+        if (!isNaN(val) && val !== '') {
+            input.value = parseInt(val).toLocaleString();
+        }
+    }
+
+    function parseNumber(str) {
+        return parseFloat(str.replace(/,/g, '')) || 0;
+    }
+
+    // ======== ذخیره خودکار ========
+    function saveToLocalStorage() {
+        const data = {
+            fullName: document.getElementById('fullName').value,
+            nationalId: document.getElementById('nationalId').value,
+            birthDate: document.getElementById('birthDate').value,
+            calcDate: document.getElementById('calcDate').value,
+            yearType: document.getElementById('yearType').value,
+            income: document.getElementById('income').value,
+            expense: document.getElementById('expense').value,
+            cash: document.getElementById('cash').value,
+            // ... سایر داده‌ها
+        };
+        localStorage.setItem('khamsData', JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem('khamsData');
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.keys(data).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = data[key];
+            });
+        }
+    }
+
+    // ======== توابع پیمایش ========
+    let currentStep = 0;
+
+    function showStep(n) {
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step'+n).classList.add('active');
+        currentStep = n;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        saveToLocalStorage();
+    }
+
+    function nextStep(n) {
+        if (currentStep === 2) collectHouseData();
+        if (currentStep === 3) collectCarData();
+        showStep(n);
+    }
+
+    function prevStep(n) {
+        if (currentStep === 2) collectHouseData();
+        if (currentStep === 3) collectCarData();
+        showStep(n);
+    }
+
+    // ======== مدیریت املاک ========
+    let houseData = [];
+
+    function toggleHouse(show) {
+        document.getElementById('houseContainer').classList.toggle('hidden', !show);
+        if (show) buildHouseForms();
+    }
+
+    function buildHouseForms() {
+        const count = parseInt(document.getElementById('houseCount').value) || 1;
+        const container = document.getElementById('houseForms');
+        container.innerHTML = '';
+        for (let i=0; i<count; i++) {
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            div.innerHTML = `
+                <strong>🏡 ملک ${i+1}</strong>
+                <div class="row">
+                    <div><label>قیمت خرید (تومان)</label><input type="text" class="house-buy" placeholder="مثلاً ۵۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                    <div><label>قیمت فعلی (تومان)</label><input type="text" class="house-now" placeholder="مثلاً ۸۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                </div>
+                <div class="row">
+                    <div><label>مبلغ رهن دریافتی (تومان)</label><input type="text" class="house-rent" placeholder="مثلاً ۲۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                        <label>کاربری:</label>
+                        <input type="radio" name="houseUse${i}" value="personal" checked> شخصی
+                        <input type="radio" name="houseUse${i}" value="investment"> سرمایه‌ای
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <label>آیا ملک در رهن است؟</label>
+                    <input type="checkbox" class="house-isRent" onchange="toggleRentFields(this, ${i})">
+                </div>
+                <div id="rentFields${i}" class="hidden">
+                    <div class="row">
+                        <div><label>مبلغ رهن دریافتی (تومان)</label><input type="text" class="house-rent-amount" placeholder="مثلاً ۱۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                        <div><label>مازاد رهن (اختیاری)</label><input type="text" class="house-rent-extra" placeholder="مازاد نسبت به خرید" oninput="formatNumber(this)"></div>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <label>خمس سال قبل پرداخت شده؟</label>
+                    <input type="checkbox" class="house-paid">
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    function toggleRentFields(checkbox, idx) {
+        document.getElementById(`rentFields${idx}`).classList.toggle('hidden', !checkbox.checked);
+    }
+
+    function collectHouseData() {
+        houseData = [];
+        const cards = document.querySelectorAll('#houseForms .item-card');
+        cards.forEach((card, idx) => {
+            const buy = parseNumber(card.querySelector('.house-buy').value);
+            const now = parseNumber(card.querySelector('.house-now').value);
+            const isRent = card.querySelector('.house-isRent').checked;
+            const rentAmount = parseNumber(card.querySelector('.house-rent-amount').value);
+            const rentExtra = parseNumber(card.querySelector('.house-rent-extra').value);
+            const use = card.querySelector(`input[name="houseUse${idx}"]:checked`).value;
+            const paid = card.querySelector('.house-paid').checked;
+            
+            let base = 0;
+            if (use === 'investment' && !paid) {
+                if (isRent) {
+                    base = rentAmount + rentExtra;
+                } else {
+                    base = now - buy;
+                }
+            }
+            houseData.push({ buy, now, isRent, rentAmount, rentExtra, use, paid, base });
+        });
+    }
+
+    // ======== مدیریت خودرو ========
+    let carData = [];
+
+    function toggleCar(show) {
+        document.getElementById('carContainer').classList.toggle('hidden', !show);
+        if (show) buildCarForms();
+    }
+
+    function buildCarForms() {
+        const count = parseInt(document.getElementById('carCount').value) || 1;
+        const container = document.getElementById('carForms');
+        container.innerHTML = '';
+        for (let i=0; i<count; i++) {
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            div.innerHTML = `
+                <strong>🚘 خودرو ${i+1}</strong>
+                <div class="row">
+                    <div><label>قیمت خرید (تومان)</label><input type="text" class="car-buy" placeholder="مثلاً ۳۰۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                    <div><label>قیمت فعلی (تومان)</label><input type="text" class="car-now" placeholder="مثلاً ۴۵۰,۰۰۰,۰۰۰" oninput="formatNumber(this)"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                    <label>نوع استفاده:</label>
+                    <input type="radio" name="carUse${i}" value="personal" checked> شخصی
+                    <input type="radio" name="carUse${i}" value="investment"> سرمایه‌ای
+                </div>
+                <div class="checkbox-group">
+                    <label>خمس سال قبل پرداخت شده؟</label>
+                    <input type="checkbox" class="car-paid">
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    }
+
+    function collectCarData() {
+        carData = [];
+        const cards = document.querySelectorAll('#carForms .item-card');
+        cards.forEach((card, idx) => {
+            const buy = parseNumber(card.querySelector('.car-buy').value);
+            const now = parseNumber(card.querySelector('.car-now').value);
+            const use = card.querySelector(`input[name="carUse${idx}"]:checked`).value;
+            const paid = card.querySelector('.car-paid').checked;
+            const base = (use === 'investment' && !paid) ? (now - buy) : 0;
+            carData.push({ buy, now, use, paid, base });
+        });
+    }
+
+    // ======== مدیریت سهام ========
+    function addStock() {
+        const template = document.getElementById('stockTemplate');
+        const clone = template.cloneNode(true);
+        clone.id = 'stock_' + Date.now();
+        clone.querySelector('.remove-btn').style.display = 'inline-block';
+        clone.querySelectorAll('input').forEach(inp => inp.value = '');
+        document.getElementById('stockContainer').appendChild(clone);
+    }
+
+    function removeStock(el) {
+        const parent = el.closest('.item-card');
+        if (document.querySelectorAll('#stockContainer .item-card').length > 1) {
+            parent.remove();
+        } else {
+            alert('حداقل یک آیتم باید وجود داشته باشد.');
+        }
+    }
+
+    // ======== مدیریت سایر اموال ========
+    function addOtherAsset() {
+        const template = document.getElementById('otherAssetTemplate');
+        const clone = template.cloneNode(true);
+        clone.id = 'other_' + Date.now();
+        clone.querySelector('.remove-btn').style.display = 'inline-block';
+        clone.querySelectorAll('input').forEach(inp => inp.value = '');
+        document.getElementById('otherAssetContainer').appendChild(clone);
+    }
+
+    function removeOtherAsset(el) {
+        const parent = el.closest('.item-card');
+        if (document.querySelectorAll('#otherAssetContainer .item-card').length > 1) {
+            parent.remove();
+        } else {
+            alert('حداقل یک آیتم باید وجود داشته باشد.');
+        }
+    }
+
+    // ======== محاسبه اصلی ========
+    function calculateKhams() {
+        collectHouseData();
+        collectCarData();
+
+        const cash = parseNumber(document.getElementById('cash').value);
+        const income = parseNumber(document.getElementById('income').value);
+        const expense = parseNumber(document.getElementById('expense').value);
+
+        // --- املاک ---
+        let houseDetails = [];
+        let houseTotal = 0;
+        houseData.forEach((h, idx) => {
+            if (h.base > 0) {
+                houseTotal += h.base;
+                let desc = `ملک ${idx+1}: `;
+                if (h.isRent) {
+                    desc += `مبلغ رهن ${h.rentAmount.toLocaleString()} + مازاد ${h.rentExtra.toLocaleString()} = ${h.base.toLocaleString()}`;
+                } else {
+                    desc += `افزایش قیمت (${h.now.toLocaleString()} - ${h.buy.toLocaleString()}) = ${h.base.toLocaleString()}`;
+                }
+                desc += ` | خمس: ${(h.base*0.2).toLocaleString()}`;
+                houseDetails.push(desc);
+            }
+        });
+
+        // --- خودرو ---
+        let carDetails = [];
+        let carTotal = 0;
+        carData.forEach((c, idx) => {
+            if (c.base > 0) {
+                carTotal += c.base;
+                carDetails.push(`خودرو ${idx+1}: افزایش قیمت (${c.now.toLocaleString()} - ${c.buy.toLocaleString()}) = ${c.base.toLocaleString()} | خمس: ${(c.base*0.2).toLocaleString()}`);
+            }
+        });
+
+        // --- طلا ---
+        const goldWeight = parseNumber(document.getElementById('goldWeight').value);
+        const goldPrice = parseNumber(document.getElementById('goldPrice').value);
+        const goldPaid = document.getElementById('goldPaid').checked;
+        let goldBase = (goldPaid ? 0 : goldWeight * goldPrice);
+        let goldDetail = (goldBase > 0) ? `وزن: ${goldWeight} گرم × ${goldPrice.toLocaleString()} = ${goldBase.toLocaleString()} | خمس: ${(goldBase*0.2).toLocaleString()}` : '';
+
+        // --- سکه ---
+        const coinCount = parseNumber(document.getElementById('coinCount').value);
+        const coinPrice = parseNumber(document.getElementById('coinPrice').value);
+        const coinPaid = document.getElementById('coinPaid').checked;
+        let coinBase = (coinPaid ? 0 : coinCount * coinPrice);
+        let coinDetail = (coinBase > 0) ? `${coinCount} عدد × ${coinPrice.toLocaleString()} = ${coinBase.toLocaleString()} | خمس: ${(coinBase*0.2).toLocaleString()}` : '';
+
+        // --- نقره ---
+        const silverWeight = parseNumber(document.getElementById('silverWeight').value);
+        const silverPrice = parseNumber(document.getElementById('silverPrice').value);
+        const silverPaid = document.getElementById('silverPaid').checked;
+        let silverBase = (silverPaid ? 0 : silverWeight * silverPrice);
+        let silverDetail = (silverBase > 0) ? `وزن: ${silverWeight} گرم × ${silverPrice.toLocaleString()} = ${silverBase.toLocaleString()} | خمس: ${(silverBase*0.2).toLocaleString()}` : '';
+
+        // --- دلار ---
+        const dollar = parseNumber(document.getElementById('dollar').value);
+        const dollarPrice = parseNumber(document.getElementById('dollarPrice').value);
+        const dollarPaid = document.getElementById('dollarPaid').checked;
+        let dollarBase = (dollarPaid ? 0 : dollar * dollarPrice);
+        let dollarDetail = (dollarBase > 0) ? `${dollar} × ${dollarPrice.toLocaleString()} = ${dollarBase.toLocaleString()} | خمس: ${(dollarBase*0.2).toLocaleString()}` : '';
+
+        // --- یورو ---
+        const euro = parseNumber(document.getElementById('euro').value);
+        const euroPrice = parseNumber(document.getElementById('euroPrice').value);
+        const euroPaid = document.getElementById('euroPaid').checked;
+        let euroBase = (euroPaid ? 0 : euro * euroPrice);
+        let euroDetail = (euroBase > 0) ? `${euro} × ${euroPrice.toLocaleString()} = ${euroBase.toLocaleString()} | خمس: ${(euroBase*0.2).toLocaleString()}` : '';
+
+        // --- سهام (فقط افزایش قیمت) ---
+        let stockDetails = [];
+        let stockTotal = 0;
+        document.querySelectorAll('#stockContainer .item-card:not(#stockTemplate)').forEach((card, idx) => {
+            const buy = parseNumber(card.querySelector('.stock-buy').value);
+            const now = parseNumber(card.querySelector('.stock-now').value);
+            const paid = card.querySelector('.stock-paid').checked;
+            if (!paid) {
+                const base = now - buy;
+                if (base > 0) {
+                    stockTotal += base;
+                    stockDetails.push(`سهام ${idx+1}: افزایش قیمت (${now.toLocaleString()} - ${buy.toLocaleString()}) = ${base.toLocaleString()} | خمس: ${(base*0.2).toLocaleString()}`);
+                }
+            }
+        });
+
+        // --- سایر اموال (فقط افزایش قیمت) ---
+        let otherDetails = [];
+        let otherTotal = 0;
+        document.querySelectorAll('#otherAssetContainer .item-card:not(#otherAssetTemplate)').forEach((card, idx) => {
+            const name = card.querySelector('.other-name').value || `کالای ${idx+1}`;
+            const buy = parseNumber(card.querySelector('.other-buy').value);
+            const now = parseNumber(card.querySelector('.other-now').value);
+            const use = card.querySelector('.other-use').value;
+            const paid = card.querySelector('.other-paid').checked;
+            if (use === 'investment' && !paid) {
+                const base = now - buy;
+                if (base > 0) {
+                    otherTotal += base;
+                    otherDetails.push(`${name}: افزایش قیمت (${now.toLocaleString()} - ${buy.toLocaleString()}) = ${base.toLocaleString()} | خمس: ${(base*0.2).toLocaleString()}`);
+                }
+            }
+        });
+
+        // --- جمع کل ---
+        const totalBase = cash + houseTotal + carTotal + goldBase + coinBase + silverBase + dollarBase + euroBase + stockTotal + otherTotal;
+        const totalKhams = totalBase * 0.2;
+
+        // --- اطلاعات شخص ---
+        const name = document.getElementById('fullName').value || '---';
+        const nationalId = document.getElementById('nationalId').value || '---';
+        const birth = document.getElementById('birthDate').value || '---';
+        const calcDate = document.getElementById('calcDate').value || new Date().toISOString().slice(0,10);
+        const yearType = document.getElementById('yearType').value === 'shamsi' ? 'شمسی' : 'قمری';
+
+        // --- ساخت خروجی HTML ---
+        let html = `
+            <div style="direction:rtl;font-family:Vazir,sans-serif;padding:10px;">
+                <div class="total-box">
+                    <h3>${name} عزیز</h3>
+                    <p>کد ملی: ${nationalId} | تولد: ${birth} | تاریخ: ${calcDate}</p>
+                    <p style="font-size:13px;color:#d4af37;">سال مالی: ${yearType}</p>
+                </div>
+                <div class="result-detail">
+                    <h4 style="color:#1a4d3e;border-bottom:2px solid #d4af37;padding-bottom:8px;">📊 جزئیات کامل محاسبه</h4>
+                    
+                    <div class="warning-box" style="margin-bottom:15px;">
+                        <strong>📌 نحوه محاسبه:</strong> 
+                        برای جلوگیری از محاسبه دوباره، <strong>موجودی حساب</strong> (که همان مازاد درآمد پس از کسر هزینه‌هاست) 
+                        به عنوان پایه اصلی در نظر گرفته شده و <strong>اموال سرمایه‌ای</strong> به آن اضافه می‌شوند.
+                        سهام و سایر اموال فقط به <strong>افزایش قیمت</strong> آنها خمس تعلق می‌گیرد.
+                    </div>
+
+                    <p><strong>💰 درآمد سالانه:</strong> ${income.toLocaleString()} تومان</p>
+                    <p><strong>💸 هزینه سالانه:</strong> ${expense.toLocaleString()} تومان</p>
+                    <p><strong>🏦 موجودی حساب (مازاد درآمد):</strong> ${cash.toLocaleString()} تومان</p>
+                    <div class="highlight">
+                        <strong>🧮 پایه خمس از موجودی حساب:</strong> ${cash.toLocaleString()} تومان 
+                        → <strong style="color:#b33c3c;">خمس: ${(cash*0.2).toLocaleString()} تومان</strong>
+                    </div>
+                    <hr>
+        `;
+
+        // املاک
+        if (houseDetails.length > 0) {
+            html += `<p><strong>🏠 املاک سرمایه‌ای (بدون پرداخت خمس سال قبل):</strong></p>`;
+            houseDetails.forEach(d => html += `<p style="padding-right:20px;">• ${d}</p>`);
+            html += `<div class="highlight">
+                <strong>جمع خمس املاک:</strong> ${(houseTotal*0.2).toLocaleString()} تومان
+            </div><hr>`;
+        }
+
+        // خودرو
+        if (carDetails.length > 0) {
+            html += `<p><strong>🚗 خودروهای سرمایه‌ای:</strong></p>`;
+            carDetails.forEach(d => html += `<p style="padding-right:20px;">• ${d}</p>`);
+            html += `<div class="highlight">
+                <strong>جمع خمس خودرو:</strong> ${(carTotal*0.2).toLocaleString()} تومان
+            </div><hr>`;
+        }
+
+        // طلا
+        if (goldBase > 0) {
+            html += `<p><strong>✨ طلا (سرمایه‌ای):</strong> ${goldDetail}</p><hr>`;
+        }
+        // سکه
+        if (coinBase > 0) {
+            html += `<p><strong>🪙 سکه:</strong> ${coinDetail}</p><hr>`;
+        }
+        // نقره
+        if (silverBase > 0) {
+            html += `<p><strong>🥈 نقره:</strong> ${silverDetail}</p><hr>`;
+        }
+        // دلار
+        if (dollarBase > 0) {
+            html += `<p><strong>💵 دلار:</strong> ${dollarDetail}</p><hr>`;
+        }
+        // یورو
+        if (euroBase > 0) {
+            html += `<p><strong>💶 یورو:</strong> ${euroDetail}</p><hr>`;
+        }
+        // سهام
+        if (stockDetails.length > 0) {
+            html += `<p><strong>📈 سهام و اوراق (افزایش قیمت):</strong></p>`;
+            stockDetails.forEach(d => html += `<p style="padding-right:20px;">• ${d}</p>`);
+            html += `<div class="highlight">
+                <strong>جمع خمس سهام:</strong> ${(stockTotal*0.2).toLocaleString()} تومان
+            </div><hr>`;
+        }
+        // سایر اموال
+        if (otherDetails.length > 0) {
+            html += `<p><strong>💎 سایر اموال سرمایه‌ای:</strong></p>`;
+            otherDetails.forEach(d => html += `<p style="padding-right:20px;">• ${d}</p>`);
+            html += `<div class="highlight">
+                <strong>جمع خمس سایر اموال:</strong> ${(otherTotal*0.2).toLocaleString()} تومان
+            </div><hr>`;
+        }
+
+        // جمع نهایی
+        html += `
+            <div style="background:linear-gradient(135deg,#1a4d3e,#0c3b2e);color:white;padding:20px;border-radius:16px;text-align:center;margin-top:15px;">
+                <h4 style="color:#d4af37;">📌 جمع کل</h4>
+                <p style="font-size:18px;">پایه کل خمس: ${totalBase.toLocaleString()} تومان</p>
+                <h2 style="font-size:32px;color:#d4af37;margin:8px 0;">${totalKhams.toLocaleString()} تومان</h2>
+                <small>مبلغ کل خمس قابل پرداخت</small>
+            </div>
+            <div style="text-align:center;margin-top:15px;color:#888;font-size:13px;border-top:2px dashed #d4af37;padding-top:15px;">
+                ✅ والسلام علیکم و رحمة الله و برکاته
+            </div>
+        `;
+
+        document.getElementById('resultSummary').innerHTML = html;
+
+        // ذخیره برای PDF
+        window._khamsData = {
+            name, nationalId, birth, calcDate, yearType,
+            income, expense, cash,
+            houseDetails, houseTotal,
+            carDetails, carTotal,
+            goldDetail, goldBase,
+            coinDetail, coinBase,
+            silverDetail, silverBase,
+            dollarDetail, dollarBase,
+            euroDetail, euroBase,
+            stockDetails, stockTotal,
+            otherDetails, otherTotal,
+            totalBase, totalKhams
+        };
+
+        showStep(6);
+    }
+
+    // ======== تولید PDF ========
+    function generatePDF() {
+        const d = window._khamsData;
+        if (!d) return alert('لطفاً ابتدا محاسبه را انجام دهید.');
+
+        const element = document.getElementById('resultSummary');
+        const opt = {
+            margin: [8, 8, 8, 8],
+            filename: `خمس_${d.name}_${d.calcDate}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, letterRendering: true, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'padding:15px;font-family:Vazir,sans-serif;background:white;direction:rtl;';
+        wrapper.innerHTML = `
+            <div style="text-align:center;border-bottom:3px solid #d4af37;padding-bottom:12px;margin-bottom:15px;">
+                <h2 style="color:#1a4d3e;">🕌 گزارش کامل خمس</h2>
+                <p style="font-size:14px;color:#333;">${d.name} | کد ملی: ${d.nationalId}</p>
+                <p style="font-size:12px;color:#666;">تاریخ تولد: ${d.birth} | تاریخ محاسبه: ${d.calcDate}</p>
+                <p style="font-size:12px;color:#666;">سال مالی: ${d.yearType}</p>
+            </div>
+        `;
+        wrapper.appendChild(element.cloneNode(true));
+
+        html2pdf().set(opt).from(wrapper).save();
+    }
+
+    // ======== شروع مجدد ========
+    function resetAll() {
+        if (confirm('آیا مطمئن هستید؟ تمام داده‌ها پاک می‌شوند.')) {
+            localStorage.removeItem('khamsData');
+            location.reload();
+        }
+    }
+
+    // ======== مقداردهی اولیه ========
+    window.onload = function() {
+        loadFromLocalStorage();
+        document.getElementById('calcDate').value = new Date().toISOString().slice(0,10);
+        buildHouseForms();
+        buildCarForms();
+        
+        // حذف دکمه حذف از آیتم‌های اولیه
+        document.querySelector('#stockTemplate .remove-btn').style.display = 'none';
+        document.querySelector('#otherAssetTemplate .remove-btn').style.display = 'none';
+        
+        // ذخیره هر ۳ ثانیه
+        setInterval(saveToLocalStorage, 3000);
+    };
+</script>
+</body>
+</html>
